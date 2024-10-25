@@ -6,19 +6,22 @@ export const sendImageToIPFS = async (fileImg) => {
       const formData = new FormData();
       formData.append("file", fileImg);
 
-      const resFile = await axios({
-        method: "post",
-        url: "https://uploads.pinata.cloud/v3/files",
-        data: formData,
-        headers: {
-          Authorization: `Bearer ${import.meta.env.VITE_PINATA_JWT}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const request = await fetch(
+        "https://api.pinata.cloud/pinning/pinFileToIPFS",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${import.meta.env.VITE_PINATA_JWT}`,
+          },
+          body: formData,
+        }
+      );
+      const response = await request.json();
+      // console.log(response);
 
       // console.log(resFile.data.data.cid);
-      const cid = resFile.data.data.cid;
-      const imageUri = `https://gateway.pinata.cloud/ipfs/${cid}`;
+      const IpfsHash = response.IpfsHash;
+      const imageUri = `https://gateway.pinata.cloud/ipfs/${IpfsHash}`;
       //Take a look at your Pinata Pinned section, you will see a new file added to you list.
       return imageUri;
     } catch (error) {
